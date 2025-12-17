@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Young Scientist Project Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .results-info {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .project-stand {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .project-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .project-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #333;
+            margin-right: 8px;
+            min-width: 70px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .type-badge.individual {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .filter-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-section {
+                padding: 15px;
+            }
+        }
+
+        .clear-filters {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+
+        .clear-filters .btn {
+            background: #f5f5f5;
+            color: #666;
+            border-color: #ddd;
+        }
+
+        .clear-filters .btn:hover {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Young Scientist Project Explorer</h1>
+            <p>Discover and explore amazing science fair projects</p>
+        </header>
+
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="filter-label">🔍 Search Projects</label>
+                <input type="text" id="searchInput" class="search-box" placeholder="Search by title, school, county...">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">📂 Category</label>
+                <div class="filter-buttons" id="categoryFilters"></div>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">👥 Project Type</label>
+                <div class="filter-buttons" id="typeFilters"></div>
+            </div>
+
+            <div class="clear-filters">
+                <button class="btn" id="clearFiltersBtn">Clear All Filters</button>
+            </div>
+        </div>
+
+        <div id="resultsInfo" class="results-info"></div>
+        <div id="projectsContainer" class="projects-grid"></div>
+    </div>
+
+    <script>
+        let allProjects = [];
+        let filteredProjects = [];
+
+        // Fetch and parse CSV
+        async function loadProjects() {
+            try {
+                const response = await fetch('all_projects.csv');
+                const text = await response.text();
+                allProjects = parseCSV(text);
+                initializeFilters();
+                displayProjects(allProjects);
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                document.getElementById('projectsContainer').innerHTML = '<p>Error loading projects. Please refresh the page.</p>';
+            }
+        }
+
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',');
+            const projects = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                // Handle quoted fields with commas
+                const fields = [];
+                let current = '';
+                let inQuotes = false;
+
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(current.replace(/^"|"$/g, ''));
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                fields.push(current.replace(/^"|"$/g, ''));
+
+                if (fields.length === headers.length) {
+                    const project = {};
+                    headers.forEach((header, index) => {
+                        project[header.trim()] = fields[index].trim();
+                    });
+                    projects.push(project);
+                }
+            }
+
+            return projects;
+        }
+
+        function initializeFilters() {
+            const categories = [...new Set(allProjects.map(p => p.category))];
+            const types = [...new Set(allProjects.map(p => p.project_type))];
+
+            // Create category filters
+            const categoryContainer = document.getElementById('categoryFilters');
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = category;
+                btn.dataset.category = category;
+                btn.addEventListener('click', () => {
+                    btn.classList.toggle('active');
+                    applyFilters();
+                });
+                categoryContainer.appendChild(btn);
+            });
+
+            // Create type filters
+            const typeContainer = document.getElementById('typeFilters');
+            types.forEach(type => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = type;
+                btn.dataset.type = type;
+                btn.addEventListener('click', () => {
+                    btn.classList.toggle('active');
+                    applyFilters();
+                });
+                typeContainer.appendChild(btn);
+            });
+
+            // Search input listener
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+            // Clear filters button
+            document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+                document.querySelectorAll('.btn[data-category], .btn[data-type]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById('searchInput').value = '';
+                applyFilters();
+            });
+        }
+
+        function applyFilters() {
+            const selectedCategories = Array.from(document.querySelectorAll('.btn[data-category].active'))
+                .map(btn => btn.dataset.category);
+            const selectedTypes = Array.from(document.querySelectorAll('.btn[data-type].active'))
+                .map(btn => btn.dataset.type);
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredProjects = allProjects.filter(project => {
+                const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(project.category);
+                const matchesType = selectedTypes.length === 0 || selectedTypes.includes(project.project_type);
+                const matchesSearch = searchTerm === '' || 
+                    project.title.toLowerCase().includes(searchTerm) ||
+                    project.school.toLowerCase().includes(searchTerm) ||
+                    project.county.toLowerCase().includes(searchTerm);
+
+                return matchesCategory && matchesType && matchesSearch;
+            });
+
+            displayProjects(filteredProjects);
+        }
+
+        function displayProjects(projects) {
+            const container = document.getElementById('projectsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+
+            resultsInfo.textContent = `Found ${projects.length} project${projects.length !== 1 ? 's' : ''}`;
+
+            if (projects.length === 0) {
+                container.innerHTML = '<div class="no-results"><div class="no-results-icon">🔭</div><p>No projects found. Try adjusting your filters.</p></div>';
+                return;
+            }
+
+            container.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <div class="project-stand">Stand #${project.stand_number}</div>
+                    <div class="project-title">${project.title}</div>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">School:</span>
+                            <span>${project.school}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">County:</span>
+                            <span>${project.county}</span>
+                        </div>
+                        <div>
+                            <div class="category-badge">${project.category}</div>
+                            <div class="type-badge ${project.project_type.toLowerCase()}">${project.project_type}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load projects on page load
+        loadProjects();
+    </script>
+</body>
+</html>
